@@ -82,7 +82,7 @@ namespace json_serializer {
    json::object SerializePlayers(const std::vector<std::shared_ptr<Player>>& players)
    {
 	   json::object players_object;
-/*
+
 	   for(auto& player : players)
 	  	{
 		    auto dog =  player->GetDog();
@@ -103,13 +103,13 @@ namespace json_serializer {
 			dog_object["speed"] = speed_ar;
 
 			DogDirection dir = dog->get_direction();
-			dog_object["dir"] = model::ConvertDogDirectionToString(dir);
+			dog_object["dir"] = string_from_direction(dir);
 
-			dog_object["bag"] = SerializeDogBag(dog->GetGatheredLoot());
+			dog_object["bag"] = SerializeDogBag(dog->get_gathered_loot());
 			dog_object["score"] = dog->get_score();
 			players_object[std::to_string(player->get_id())] = dog_object;
 	  	}
-*/
+
 	   return players_object;
    }
 
@@ -143,23 +143,23 @@ namespace json_serializer {
    }
 
 
-    std::string GetMapListResponce(const Game& game)
+    std::string GetMapListResponce(std::shared_ptr<Game> game)
     {
         json::array map_ar;
- /*     for( const auto& map: game.GetMaps())
+        for(const auto& map : game->get_maps())
         {
             json::object map_obj;
 	
-            map_obj[ "id" ] = *map.GetId();
-            map_obj[ "name" ] = map.GetName();
+            map_obj[ "id" ] = map.second->id();
+            map_obj[ "name" ] = map.second->name();
             map_ar.emplace_back(map_obj);
         }
-  */
+ 
         return json::serialize(map_ar);
     }
 
 
-    std::string MakeRecordsResponce(const Game& game, int start, int max_items)
+    std::string MakeRecordsResponce(std::shared_ptr<Game> game, int start, int max_items)
     {
     	json::array map_ar;
 /*      for( const auto& record: game.GetRecords(start, max_items))
@@ -175,8 +175,8 @@ namespace json_serializer {
         return json::serialize(map_ar);
     }
 
-    std::string GetMapContentResponce(const Game& game, const std::string& map_id)
+    std::string GetMapContentResponce(std::shared_ptr<Game> game, const std::string& map_id)
     {
-        return "";
+        return game->get_map_as_string(map_id);
     }
 }  // namespace json_serializer

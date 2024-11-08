@@ -7,10 +7,13 @@
 #include "Utils.h"
 #include "Exceptions.h"
 
-Game::Game(std::shared_ptr<MapStorage> storage, bool spawn_in_random_points/*, ConcreteRepository repository, exception_coro: Coroutine*/)
+Game::Game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::ITokenGenerator> generator, 
+           int tick_period, bool spawn_in_random_points/*, ConcreteRepository repository, exception_coro: Coroutine*/)
 {
     storage_ = storage;
+    generator_ = generator;
     spawn_in_random_points_ = spawn_in_random_points;
+    tick_period_=tick_period;
     // self.repository_ = repository
     // self.data_saver_ = SaveDataCoroutineRunner()
     // self.exception_handler_ = exception_coro
@@ -88,7 +91,7 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
     	    sessions_.push_back(session);
         }
 
-        auto player = session->add_player(player_name, mapToAdd, spawn_in_random_points_, storage_->get_default_bag_capacity());
+        auto player = session->add_player(player_name, mapToAdd, generator_->GetToken(), spawn_in_random_points_, storage_->get_default_bag_capacity());
         return {player->GetToken(), player->get_id()};
     }
 
@@ -295,11 +298,13 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
         return {};
     }
 
-std::unique_ptr<Game> create_game(std::string config_content/*, repository: ConcreteRepository, exception_coro: Coroutine*/)
+std::shared_ptr<Game> create_game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::PlayerToken> tokenizer,
+                                  int tick_period, bool spawn_random_point
+                                  /*, repository: ConcreteRepository, exception_coro: Coroutine*/)
 {
-    auto storage = std::make_shared<MapStorage>();
-    storage->parse_maps(ReadJson(config_content));
-    std::unique_ptr<Game> game = std::make_unique<Game>(storage, false/*, repository, exception_coro*/);
+    // auto storage = std::make_shared<MapStorage>();
+    // storage->parse_maps(ReadJson(config_content));
+    /*std::unique_ptr<Game>*/auto game = std::make_shared<Game>(storage, tokenizer, tick_period, spawn_random_point/*, repository, exception_coro*/);
 
     // game.data_saver_.start(create_database, 'postgres', 'records')
     // game.data_saver_.start(game.repository_.create_table)
@@ -308,7 +313,8 @@ std::unique_ptr<Game> create_game(std::string config_content/*, repository: Conc
     game->set_dog_retirement_time(storage->get_dog_retirement_time()*1000);
     game->set_loot_parameters(storage->get_loot_config());
     game->set_save_period(15000);
-    game->set_tick_period(100);
+    game->set_tick_period(tick_period);
+    // game->set_tick_period(100);
 
     // game.SetDefaultBagCapacity(storage.getDefaultBagCapacity())
 

@@ -15,16 +15,19 @@ constexpr float epsilon = 0.0001;
 
 Dog::Dog(shared_ptr<Map> map, int default_bag_capacity)
 {
-    if (!map_->bag_capacity())
+/*    if (!map_->bag_capacity())
         bag_capacity_ = map_->bag_capacity();
     else 
         bag_capacity_ = default_bag_capacity;
-
+*/
     map_ = map;
     roads_ = map_->roads();
     direction_ = DogDirection::NORTH;
 
     adjacent_roads_ = std::vector<std::set<int>>(roads_.size());
+
+    bag_capacity_ =  map_->bag_capacity() ? map_->bag_capacity() : default_bag_capacity;
+
     find_adjacent_roads();
 }
 

@@ -41,31 +41,6 @@ TEST(PointTestSuite, TwoPointsNotEqual) {
     ASSERT_FALSE(pnt1 == pnt2);
 }
 
-
-
-////////////////offset
-
-TEST(OffsetTestSuite, OffsetZeroInitialization) {
-
-    Offset pnt;
-    ASSERT_FLOAT_EQ(pnt.dx, 0.0);
-    ASSERT_FLOAT_EQ(pnt.dy, 0.0);
-}
-
-TEST(OffsetTestSuite, OffsetPositiveInitialization) {
-
-    Offset pnt{110.123f, 220.456f};
-    ASSERT_FLOAT_EQ(pnt.dx, 110.123f);
-    ASSERT_FLOAT_EQ(pnt.dy, 220.456f);
-}
-
-TEST(OffsetTestSuite, OffsetNegativeInitialization) {
-
-    Offset pnt{-1100.123f, -1200.456f};
-    ASSERT_FLOAT_EQ(pnt.dx, -1100.123f);
-    ASSERT_FLOAT_EQ(pnt.dy, -1200.456f);
-}
-
  TEST(LootInfoTestSuite, LootInfoDefaultInitialization) {
 
     LootInfo off;
@@ -92,3 +67,47 @@ TEST(LootInfoTestSuite, LootInfoNegativeInitialization) {
     ASSERT_FLOAT_EQ(off.x, -3.123f);
     ASSERT_FLOAT_EQ(off.y, -4.678f);
 }
+
+TEST(RoadInfoTestSuite, LootInfoDefaultInitialization) {
+
+    RoadInfo info;
+    ASSERT_EQ(info.road_index, 0);
+    ASSERT_EQ(info.road_type, RoadMutualPositionType::Parallel);
+}
+
+TEST(RoadInfoTestSuite, LootInfoAdjacentInitialization) {
+
+    RoadInfo info{1, RoadMutualPositionType::Adjacent};
+    ASSERT_EQ(info.road_index, 1);
+    ASSERT_EQ(info.road_type, RoadMutualPositionType::Adjacent);
+}
+
+TEST(RoadInfoTestSuite, LootInfoCrossedInitialization) {
+
+    RoadInfo info{1000, RoadMutualPositionType::Crossed};
+    ASSERT_EQ(info.road_index, 1000);
+    ASSERT_EQ(info.road_type, RoadMutualPositionType::Crossed);
+}
+
+
+TEST(OffsetTestSuite, OffsetZeroInitialization) {
+
+    Offset pnt;
+    ASSERT_FLOAT_EQ(pnt.dx, 0.0);
+    ASSERT_FLOAT_EQ(pnt.dy, 0.0);
+}
+
+TEST(OffsetTestSuite, OffsetPositiveInitialization) {
+
+    Offset pnt{110.123f, 220.456f};
+    ASSERT_FLOAT_EQ(pnt.dx, 110.123f);
+    ASSERT_FLOAT_EQ(pnt.dy, 220.456f);
+}
+
+TEST(OffsetTestSuite, OffsetNegativeInitialization) {
+
+    Offset pnt{-1100.123f, -1200.456f};
+    ASSERT_FLOAT_EQ(pnt.dx, -1100.123f);
+    ASSERT_FLOAT_EQ(pnt.dy, -1200.456f);
+}
+

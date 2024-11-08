@@ -206,7 +206,7 @@ StringResponse ApiHandler::HandleAuthRequest(const std::string& body, unsigned h
     	}
     	try
     	{
-    		auto [token, playerId] = game_.add_player(respMap["mapId"], respMap["userName"]);
+    		auto [token, playerId] = game_->add_player(respMap["mapId"], respMap["userName"]);
 
     		// auto player =  game_.GetPlayerWithAuthToken(token);
     		// player->GetDog()->SpawnDogInMap(game_.GetSpawnInRandomPoint());
@@ -267,7 +267,7 @@ StringResponse ApiHandler::HandleGetPlayersRequest(http::verb method, std::strin
 								  {{http::field::cache_control, "no-cache"sv}});
 
 	}
-	if(!game_.GetPlayerWithAuthToken(auth_token))
+	if(!game_->GetPlayerWithAuthToken(auth_token))
 	{
 		return MakeStringResponse(http::status::unauthorized,
 							      json_serializer::MakeMappedResponce(playerTokenNotFoundResp),
@@ -275,7 +275,7 @@ StringResponse ApiHandler::HandleGetPlayersRequest(http::verb method, std::strin
 								  {{http::field::cache_control, "no-cache"sv}});
 	}
 
-	auto players =  game_.find_all_players_for_auth_info(auth_token);
+	auto players =  game_->find_all_players_for_auth_info(auth_token);
 	StringResponse resp;
 	if(method == http::verb::get)
 		resp = MakeStringResponse(http::status::ok, json_serializer::GetPlayerInfoResponce(players), http_version, keep_alive,
@@ -311,7 +311,7 @@ StringResponse ApiHandler::HandleGetGameState(http::verb method, std::string_vie
 		return resp;
 	}
 	std::string auth_token = GetAuthToken(auth_type);
-	if(auth_token.empty() || !game_.has_session_with_auth_info(auth_token))
+	if(auth_token.empty() || !game_->has_session_with_auth_info(auth_token))
 	{
 		StringResponse resp;
 		if(auth_token.empty() || !IsValidAuthToken(auth_token, 32))
@@ -329,8 +329,8 @@ StringResponse ApiHandler::HandleGetGameState(http::verb method, std::string_vie
 
   if(method == http::verb::get)
   {
-	  auto players =  game_.find_all_players_for_auth_info(auth_token);
-	  auto loots = game_.get_loots_for_auth_info(auth_token);
+	  auto players =  game_->find_all_players_for_auth_info(auth_token);
+	  auto loots = game_->get_loots_for_auth_info(auth_token);
 	  auto resp = MakeStringResponse(http::status::ok, json_serializer::GetPlayersDogInfoResponce(players, loots),
 			  	  	  	  	  	  	 http_version, keep_alive, ContentType::APPLICATION_JSON,
 									 {{http::field::cache_control, "no-cache"sv}});
@@ -368,7 +368,7 @@ StringResponse ApiHandler::HandlePlayerAction(http::verb method, std::string_vie
 		return resp;
    }
 	else
-		if(!game_.has_session_with_auth_info(auth_token))
+		if(!game_->has_session_with_auth_info(auth_token))
 		{
 			auto resp = MakeStringResponse(http::status::unauthorized,
     				    					json_serializer::MakeMappedResponce(playerTokenNotFoundResp),
@@ -378,13 +378,13 @@ StringResponse ApiHandler::HandlePlayerAction(http::verb method, std::string_vie
     		return resp;
 		}
 
-	auto session =  game_.__get_session_for_token(auth_token);
-	auto map = game_.find_map(session->GetMap());
+	auto session =  game_->__get_session_for_token(auth_token);
+	auto map = game_->find_map(session->GetMap());
 	auto map_speed = map->dog_speed();
-	auto player =  game_.GetPlayerWithAuthToken(auth_token);
+	auto player =  game_->GetPlayerWithAuthToken(auth_token);
 
 	DogDirection dir =  json_loader::GetMoveDirection(body);
-	player->GetDog()->set_speed(dir, map_speed > 0.0 ? map_speed : game_.get_default_dog_speed());
+	player->GetDog()->set_speed(dir, map_speed > 0.0 ? map_speed : game_->get_default_dog_speed());
 
 	auto resp = MakeStringResponse(http::status::ok, "{}", http_version, keep_alive, ContentType::APPLICATION_JSON,
 								   {{http::field::cache_control, "no-cache"sv}});
@@ -418,8 +418,8 @@ StringResponse ApiHandler::HandleTickAction(http::verb method, std::string_view 
 		 try{
 	  			int deltaTime = json_loader::ParseDeltaTimeRequest(body);
 
-	  			game_.GenerateLoot(deltaTime);
-	  			game_.MoveDogs(deltaTime);
+	  			game_->GenerateLoot(deltaTime);
+	  			game_->MoveDogs(deltaTime);
 	  			// game_.SaveSessions(deltaTime);
 	  			// game_.HandleRetiredPlayers();
 	  			resp = MakeStringResponse(http::status::ok, "{}", http_version, keep_alive,

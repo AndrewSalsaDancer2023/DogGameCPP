@@ -28,15 +28,6 @@ struct CollectionResult
 
 struct Item
 {
-    Item(int id, Point pos_, float width_, ItemType type_ = ItemType::Loot)
-    {
-
-        id_ = id;
-        type_ = type_;
-        position = pos_;
-        width = width_;
-    }
-
     int id_;
     Point position; 
     float width; 

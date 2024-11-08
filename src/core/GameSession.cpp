@@ -32,7 +32,7 @@ void GameSession::init_loot_generator(float loot_period, float loot_probability)
 	lootGen_ = std::make_unique<LootGenerator>(LootGenerator::TimeInterval{duration}, loot_probability);
 }
 
-std::shared_ptr<Player> GameSession::add_player(std::string player_name, shared_ptr<Map> player_map, bool spawn_dog_in_random_point, int default_bag_capacity)
+std::shared_ptr<Player> GameSession::add_player(const std::string& player_name, shared_ptr<Map> player_map, const std::string& token, bool spawn_dog_in_random_point, int default_bag_capacity)
 {
 	map_ = player_map;
 	auto itFind = std::find_if(std::begin(players_), std::end(players_), [&player_name](shared_ptr<Player>& plr) {
@@ -45,7 +45,7 @@ std::shared_ptr<Player> GameSession::add_player(std::string player_name, shared_
 
 	utils::PlayerToken token_generator;
 	auto dog = std::make_shared<Dog>(map_, default_bag_capacity);
-	auto player = std::make_shared<Player>(player_id, player_name, token_generator.GetToken(), dog);
+	auto player = std::make_shared<Player>(player_id, player_name, token,/* token_generator.GetToken(),*/ dog);
 	players_.push_back(player);
 	player_id ++;
 
@@ -85,9 +85,10 @@ void GameSession::MoveDogs(int delta_time)
 
 		auto gatherer = dog->move(delta_time);
 		if(!gatherer)
+		{
 			dog->add_idle_time(delta_time);
 			return;
-
+		}
 		dog->set_idle_time(0);
 
 		auto items = get_gathered_items(*gatherer, loots_info_, map_);
@@ -157,13 +158,13 @@ ItemList GameSession::get_gathered_items(Gatherer gatherer, const LootList& loot
 
 	for(const auto& cur_loot : loots)
 	{
-		auto item = Item(cur_loot.id, Point{cur_loot.x, cur_loot.y}, lootWidth);
+		auto item = Item{cur_loot.id, Point{cur_loot.x, cur_loot.y}, lootWidth};
 		items.push_back(item);
 	}
 
 	for(const auto& office : map_->offices())
 	{
-		auto item = Item(0, office.position, baseWidth, ItemType::Office);
+		auto item = Item{0, office.position, baseWidth, ItemType::Office};
 		items.push_back(item);
 	}
 

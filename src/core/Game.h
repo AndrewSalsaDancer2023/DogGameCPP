@@ -6,6 +6,7 @@
 #include <optional>
 #include <memory>
 #include "MapParser.h"
+#include "Utils.h"
 // logger = logging.getLogger(__name__)
 
 class Player;
@@ -20,10 +21,17 @@ using PlayersList = std::vector<std::shared_ptr<Player>>;
 class Game
 {
 public:    
-    Game(std::shared_ptr<MapStorage> storage, bool spawn_in_random_points/*, ConcreteRepository repository, exception_coro: Coroutine*/);
+    Game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::ITokenGenerator> generator, 
+        int tick_period, bool spawn_in_random_points/*, ConcreteRepository repository, exception_coro: Coroutine*/);
       
     std::shared_ptr<Map> find_map(const std::string& id_)
         { return storage_->get_map(id_); }
+
+    const Maps& get_maps() const
+        { return storage_->get_maps(); }
+
+    std::string get_map_as_string(const std::string& id) const
+        { return storage_->get_map_as_string(id); }
 
     const PlayersList& find_all_players_for_auth_info(const std::string& auth_token);
     
@@ -81,10 +89,11 @@ private:
     // std::shared_ptr<GameSession> __get_session_for_token(const std::string& auth_token);
     
     std::shared_ptr<MapStorage> storage_;
+    std::shared_ptr<utils::ITokenGenerator> generator_;
     std::vector<std::shared_ptr<GameSession>> sessions_;
     float default_dog_speed_ = 0.0;
     float dog_retirement_time_ {60*1000.0f};
-    int tick_period_{-1};
+    int tick_period_{};
     bool spawn_in_random_points_{};
     float loot_period_ = 0.0f;
     float loot_probability_ = 0.0f;
@@ -92,4 +101,6 @@ private:
     int time_without_saving_ = 0;
 };
 
-std::unique_ptr<Game> create_game(std::string config_content/*, repository: ConcreteRepository, exception_coro: Coroutine*/);
+std::shared_ptr<Game> create_game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::PlayerToken> tokenizer,
+                                  int tick_period = 100, bool spawn_random_point = false
+                                 /*, repository: ConcreteRepository, exception_coro: Coroutine*/);

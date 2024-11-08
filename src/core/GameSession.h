@@ -20,7 +20,7 @@ public:
     GameSession(const std::string& map_id, float loot_period, float loot_probability);
     SessionInfo get_session_state();
     void init_loot_generator(float loot_period, float loot_probability);
-    std::shared_ptr<Player> add_player(std::string player_name, shared_ptr<Map> player_map, bool spawn_dog_in_random_point, int default_bag_capacity);
+    std::shared_ptr<Player> add_player(const std::string& player_name, shared_ptr<Map> player_map, const std::string& token, bool spawn_dog_in_random_point, int default_bag_capacity);
     std::string GetMap()
         { return map_id_;}
     bool HasPlayerWithAuthToken(const std::string& auth_token);

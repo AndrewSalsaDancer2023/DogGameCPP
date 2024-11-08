@@ -49,6 +49,8 @@ add_library(GameLib STATIC
 	src/network/http_server.h
 	src/network/http_server.cpp
 	src/utility/utility_functions.h
+	src/db/postgres.h
+	src/db/postgres.cpp	
 )
 
 # они должны быть видны и в библиотеке GameLib и в зависимостях.
@@ -63,6 +65,7 @@ target_link_libraries(game_server PRIVATE GameLib)
 
 add_executable(server_tests
 	test/test_data_types.cpp
+
 )
 
 target_link_libraries(server_tests PRIVATE CONAN_PKG::gtest)

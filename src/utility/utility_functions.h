@@ -6,10 +6,10 @@
 #include "connection_engine.h"
 */
 struct Args {
-    int tick_period{0};
-    int save_period{0};
-    std::string config_file;
-    std::string www_root;
+    int tick_period{100};
+    int save_period{10000};
+    std::string config_file{"./data/config.json"};
+    // std::string www_root;
     std::string save_file;
     bool spawn_random_points{false};
 };
@@ -34,7 +34,7 @@ namespace {
         ("help,h", "produce help message")  //
         ("tick-period,t", po::value(&tick_period)->value_name("milliseconds"s), " set tick period")  //
         ("config-file,c", po::value(&args.config_file)->value_name("file"s), "set config file path") //
-        ("www-root,w", po::value(&args.www_root)->value_name("dir"s), "set static files root") //        
+        // ("www-root,w", po::value(&args.www_root)->value_name("dir"s), "set static files root") //        
 		("randomize-spawn-points", "spawn dogs at random positions") //
 		("state-file,f", po::value(&args.save_file)->value_name("file"s), "set file to save server state") //
 		("save-state-period,p",  po::value(&save_period)->value_name("milliseconds"s), "time period to save server state in milliseconds");
@@ -52,9 +52,9 @@ namespace {
         throw std::runtime_error("Config file path has not been specified"s);
     }
 
-    if (!vm.contains("www-root"s)) {
-        throw std::runtime_error("Static files root path is not specified"s);
-    }
+    // if (!vm.contains("www-root"s)) {
+    //     throw std::runtime_error("Static files root path is not specified"s);
+    // }
 
     if (vm.contains("tick-period"s))
     {

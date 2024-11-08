@@ -2,6 +2,7 @@
 #include "http_server.h"
 #include "../logging/event_logger.h"
 #include "api_handler.h"
+#include <memory>
 #include "../core/Game.h"
 namespace net = boost::asio;
 
@@ -21,7 +22,7 @@ using StaticFileResponce = http::response<http::file_body>;
 
 class RequestHandler: public std::enable_shared_from_this<RequestHandler> {
 public:
-    explicit RequestHandler(Game& game, net::io_context& ioc)
+    explicit RequestHandler(std::shared_ptr<Game> game, net::io_context& ioc)
         : game_{game}, strand_(net::make_strand(ioc)) {
         api_handler_ = std::make_shared<ApiHandler>(game, strand_);
     }
@@ -96,7 +97,7 @@ public:
     }
 private:
     Strand strand_;
-    Game& game_;
+    std::shared_ptr<Game> game_;
     std::shared_ptr<ApiHandler> api_handler_;
 };
 

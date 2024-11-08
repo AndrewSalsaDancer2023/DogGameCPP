@@ -10,9 +10,14 @@ float GetRandomFloatNumber(float minValue, float maxValue);
 
 constexpr size_t default_token_size_ = 32;
 
-class PlayerToken {
+class ITokenGenerator {
 public:
-	std::string GetToken()
+    virtual std::string GetToken() = 0;
+};
+
+class PlayerToken : public ITokenGenerator {
+public:
+	std::string GetToken() override
 	{
 	auto hexConverter = [](const auto& value) -> std::string
 			{

@@ -40,15 +40,15 @@ StringResponse MakeStringResponse(http::status status, std::string_view body, un
 
 class ApiHandler{
 public:
-     explicit ApiHandler(Game& game, Strand& strand):game_{game}, strand_{strand}{
+     explicit ApiHandler(std::shared_ptr<Game> game, Strand& strand):game_{game}, strand_{strand}{
         InitApiRequestHandlers();
-        if(game_.get_tick_period() > 0)
+        if(game_->get_tick_period() > 0)
         {
-        	ticker_ = std::make_shared<Ticker>(strand_, std::chrono::milliseconds(game_.get_tick_period()),
+        	ticker_ = std::make_shared<Ticker>(strand_, std::chrono::milliseconds(game_->get_tick_period()),
         								   [this](std::chrono::milliseconds ticks)
 										   {
-        										game_.GenerateLoot(ticks.count());
-        										game_.MoveDogs(ticks.count());
+        										game_->GenerateLoot(ticks.count());
+        										game_->MoveDogs(ticks.count());
         										// game_.SaveSessions(ticks.count());
         										// game_.HandleRetiredPlayers();
 										   });
@@ -79,7 +79,7 @@ private:
     StringResponse HandleGetRecordsAction(http::verb method, std::string_view auth_type, const std::string& body,
     								unsigned http_version, bool keep_alive, const std::map<std::string, std::string>& params);
 private:
-    Game& game_;
+    std::shared_ptr<Game> game_;
     std::map<std::string,
 			std::function<StringResponse(http::verb, std::string_view, const std::string&, unsigned, bool, const std::map<std::string, std::string>&)>> resp_map_;
     std::shared_ptr<Ticker> ticker_;

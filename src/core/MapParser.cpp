@@ -1,7 +1,7 @@
 #include "MapParser.h"
 #include <fstream>
 #include <iostream>
-
+#include <boost/json/detail/value_to.hpp>
 std::string speedKey = "dogSpeed";
 std::string defaultDogSpeedKey = "defaultDogSpeed";
 std::string lootConfigKey = "lootGeneratorConfig";
@@ -140,6 +140,7 @@ void MapStorage::parse_maps(const boost::json::value& config_content)
         {
             const auto& curMap = map_array.at(index).as_object();
             std::string map_name(curMap.at(id).as_string().data());
+            maps_json[map_name] = boost::json::serialize(curMap);
             maps[map_name] = parse_map(curMap);
         }
 }

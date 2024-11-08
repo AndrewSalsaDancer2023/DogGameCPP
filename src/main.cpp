@@ -33,13 +33,14 @@ void RunWorkers(unsigned num_threads, const Fn& fn) {
 }  // namespace
 
 int main(int argc, const char* argv[]) {
-	std::optional<Args> args;
-	args = ParseCommandLine(argc, argv);
-	if(!args)
-		return EXIT_FAILURE;
+	// std::optional<Args> args;
+	// args = ParseCommandLine(argc, argv);
+	// if(!args)
+	// 	return EXIT_FAILURE;
 
 
     try {
+        std::optional<Args> args = Args{};
     	//  postgres::Database db{pqxx::connection{GetConfigFromEnv().db_url}};
     	//  db.CreateTable();
         // 1. Загружаем карту из файла и построить модель игры
@@ -48,6 +49,9 @@ int main(int argc, const char* argv[]) {
         auto json_value = ReadJson(pth);
         auto stor = std::make_shared<MapStorage>();
         stor->parse_maps(json_value);
+
+        auto tokenizer = std::make_shared<utils::PlayerToken>();
+        auto game = create_game(stor, tokenizer/*, repository: ConcreteRepository, exception_coro: Coroutine*/);
         // if(args->tick_period > 0)
         // 	game.SetTickPeriod(args->tick_period);
 /*
@@ -59,8 +63,8 @@ int main(int argc, const char* argv[]) {
         	DeserializeSessions(game);
         }*/
         // game.SetSpawnInRandomPoint(args->spawn_random_points);
-        Game game(stor, args->spawn_random_points);
-        game.set_tick_period(args->tick_period);
+        // Game game(stor, tokenizer, args->spawn_random_points);
+        // game.set_tick_period(args->tick_period);
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
         net::io_context ioc(num_threads);
@@ -68,7 +72,7 @@ int main(int argc, const char* argv[]) {
         // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
         // Подписываемся на сигналы и при их получении завершаем работу сервера
         net::signal_set signals(ioc, SIGINT, SIGTERM);
-        signals.async_wait([&ioc, &game](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
+        signals.async_wait([&ioc, game](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
         		if (!ec) {
         			ioc.stop();
         			// SerializeSessions(game);
@@ -96,6 +100,7 @@ int main(int argc, const char* argv[]) {
             ioc.run();
         });
     } catch (const std::exception& ex) {
+        std::string reason{ex.what()};
         event_logger::LogServerEnd("server exited", EXIT_FAILURE, ex.what());
         return EXIT_FAILURE;
     }

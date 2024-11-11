@@ -92,7 +92,7 @@ boost::json::value ReadJson(const std::filesystem::path& json_path)
         		  std::string(loot_object.at(file).as_string().data()),
 				  std::string(loot_object.at(type).as_string().data()),
 				  loot_object.contains(rotation) ? static_cast<int>(loot_object.at(rotation).as_int64()) : -1,
-				  loot_object.contains(color) ? std::string(loot_object.at(color).as_string().data()) : "",
+				  loot_object.contains(color) ? std::string(loot_object.at(color).as_string()) : "",
 				  static_cast<float>(loot_object.at(scale).as_double()),
 				  loot_object.contains(value) ? static_cast<int>(loot_object.at(value).as_int64()) : 0};
 

@@ -65,7 +65,10 @@ target_link_libraries(game_server PRIVATE GameLib)
 
 add_executable(server_tests
 	test/test_data_types.cpp
-
+	test/test_core_utils.cpp
+	test/utils/test_utilities.h
+	test/utils/test_utilities.cpp
+	test/test_map_parser.cpp	
 )
 
 target_link_libraries(server_tests PRIVATE CONAN_PKG::gtest)

@@ -33,7 +33,6 @@ class Map
 {
 public:    
     Map(const std::string& id_, const std::string& name);
-    // Map() = default;
 
     void set_id(const std::string& id_)
     {__id = id_;}

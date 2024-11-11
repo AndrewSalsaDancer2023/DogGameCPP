@@ -8,9 +8,7 @@
 
 using Maps = std::map<std::string, std::shared_ptr<Map>>;
 using MapJSON = std::map<std::string, std::string>;
-
- boost::json::value ReadJson(const std::filesystem::path& json_path);
-
+ 
 class MapStorage
 {
 public:    
@@ -22,12 +20,7 @@ public:
     std::string get_map_as_string(const std::string& map_id)
         { return maps_json.at(map_id); }
     std::shared_ptr<Map> parse_map(const boost::json::object& map_representation);
-/*
-    Road parse_road(const boost::json::object& road_repr);
-    Office parse_office(const boost::json::object& office_repr);
-    Loot parse_loot(const boost::json::object& loot_repr);
-    Map parse_map(const boost::json::object& map_representation);
-*/
+
     float get_dog_retirement_time()
     { return defaultDogRetirementTime; }
 
@@ -45,6 +38,11 @@ private:
     MapJSON maps_json;
     LootConfig loot_config;
     float defaultDogRetirementTime = 0.0f;
-    int defaultDogSpeed = 1.0f;
+    float defaultDogSpeed = 1.0f;
     int defaultBagCapacity = 3;    
 };
+
+boost::json::value ReadJson(const std::filesystem::path& json_path);
+ Road ParseRoad(const boost::json::object& road_object);
+ Office ParseOffice(const boost::json::object& office_object);
+ Loot ParseLoot(const boost::json::object& loot_object);

@@ -1,7 +1,7 @@
 #pragma once
 #include <pqxx/connection>
 #include <pqxx/transaction>
-// #include "model.h"
+#include "../core/DataTypes.h"
 
 namespace postgres {
 class RetiredRepositoryImpl
@@ -11,8 +11,8 @@ public:
         : connection_{connection}
     {}
 
-    // void SaveRetired(const model::PlayerRecordItem& retired);
-    // std::vector<model::PlayerRecordItem> GetRetired(int start = 0, int max_items = 100);
+     void SaveRetired(const std::string& player_uuid, const PlayerRecordItem& record);
+     std::vector<PlayerRecordItem> GetRetired(int start = 0, int max_items = 100);
 private:
     pqxx::connection& connection_;
 };

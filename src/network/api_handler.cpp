@@ -41,27 +41,6 @@ const std::map<std::string, std::string> invalidEndpointResp
 const std::map<std::string, std::string> failedToParseTickResp
 { {"code", "invalidArgument"}, {"message", "Failed to parse tick request JSON"}};
 
-
-std::string GetAuthToken(std::string_view auth)
-{
-	std::string_view prefix = "Bearer"sv;
-
-	if(auth.find_first_of(prefix) == std::string_view::npos)
-	{
-		return "";
-	}
-	auth.remove_prefix(prefix.size());
-
-	size_t pos = 0;
-	do{
-		pos = auth.find_first_of(' ');
-		if(pos == 0)
-			auth.remove_prefix(1);
-	}while(pos != std::string_view::npos);
-
-	return std::string(auth.begin(), auth.end());
-}
-
 StringResponse MakeStringResponse(http::status status, std::string_view body, unsigned http_version,
 								  bool keep_alive, std::string_view content_type,
 								  const std::initializer_list< std::pair<http::field, std::string_view> > & addition_headers)
@@ -78,7 +57,6 @@ StringResponse MakeStringResponse(http::status status, std::string_view body, un
     return response;
  }
 
-
 bool ApiHandler::IsApiRequest(const std::string& request)
 {
 	std::string np_request = GetRequestStringWithoutParameters(request);
@@ -88,18 +66,6 @@ bool ApiHandler::IsApiRequest(const std::string& request)
 	return api_endpoints.find(np_request) != api_endpoints.end();
 }
 
-std::map<std::string, std::string> GetRequestParameters(const std::string& request)
-{
-	url_view u(request);
-	std::map<std::string, std::string> result;
-
-	for (auto param: u.params())
-	{
-	    result[param.key] = param.value;
-	}
-
-	return result;
-}
 
 StringResponse ApiHandler::HandleApiRequest(const std::string& request, http::verb method, std::string_view auth_type, const std::string& body, unsigned http_version, bool keep_alive)
 {
@@ -437,27 +403,6 @@ StringResponse ApiHandler::HandleTickAction(http::verb method, std::string_view 
 	 return resp;
 }
 
-std::pair<int, int> ParseParameters(const std::map<std::string, std::string>& params)
-{
-	 int start = 0;
-	 int max_items = MAX_DB_RECORDS;
-
-	 try
-	 {
-		 auto it  = params.find("start");
-		 if(it != params.end())
-			 start = std::stoi(it->second);
-
-		 it  = params.find("maxItems");
-		 if(it != params.end())
-	 	 	 max_items = std::stoi(it->second);
-
-	 }
-	 catch(std::exception& ex)
-	 {
-	 }
-	 return {start, max_items};
-}
 
 StringResponse ApiHandler::HandleGetRecordsAction(http::verb method, std::string_view auth_type,
 												  const std::string& body, unsigned http_version,

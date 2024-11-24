@@ -46,9 +46,15 @@ add_library(GameLib STATIC
 	src/serialization/json_loader.cpp	
 	src/serialization/json_serializer.h
 	src/serialization/json_serializer.cpp
+	src/serialization/game_state_serialization.h
+	src/serialization/game_state_serialization.cpp
 	src/network/http_server.h
 	src/network/http_server.cpp
 	src/utility/utility_functions.h
+	src/utility/tagged.h
+	src/utility/tagged_uuid.h
+	src/utility/tagged_uuid.cpp
+	src/db/connection_engine.h
 	src/db/postgres.h
 	src/db/postgres.cpp	
 )

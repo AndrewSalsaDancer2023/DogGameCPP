@@ -60,17 +60,23 @@ public:
     LootParameters get_loot_parameters()
         { return {loot_period_, loot_probability_}; }
 
-
     void timer_handler();
 
     void set_save_period(int period)
         { save_period = period; }
 
+    void set_save_path(const std::string& path)
+    { save_path = path;}
+
+    std::string get_save_path()
+    {  return save_path;}
+    
     GameState create_game_state();
 
     void serialize_sessions(int interval);
     void init_dog(std::shared_ptr<Dog> dog, const PlayerState& player_state);
-    //void restore_sessions(session_content);
+    void serialize_state();
+    void restore_sessions(const GameState& state);
     PlayersList find_expired_players();
 
     void save_expired_players(const PlayersList& players);
@@ -91,6 +97,7 @@ private:
     std::shared_ptr<MapStorage> storage_;
     std::shared_ptr<utils::ITokenGenerator> generator_;
     std::vector<std::shared_ptr<GameSession>> sessions_;
+    std::string save_path = "sessions_state.tmp";
     float default_dog_speed_ = 0.0;
     float dog_retirement_time_ {60*1000.0f};
     int tick_period_{};

@@ -9,31 +9,31 @@ namespace postgres {
 
 using namespace std::literals;
 using pqxx::operator"" _zv;
-/*
-void RetiredRepositoryImpl::SaveRetired(const model::PlayerRecordItem& retired)
+
+void RetiredRepositoryImpl::SaveRetired(const std::string& player_uuid, const PlayerRecordItem& record)
 {
 	pqxx::work work{connection_};
 	work.exec_params(
 	        R"(INSERT INTO retired_players (id, name, score, play_time_ms) VALUES ($1, $2, $3, $4);)"_zv,
-	retired.id, retired.name, retired.score,  retired.playTime);
+	player_uuid, record.name, record.score,  record.play_time);
 	work.commit();
 }
 
-std::vector<model::PlayerRecordItem> RetiredRepositoryImpl::GetRetired(int start, int max_items)
+std::vector<PlayerRecordItem> RetiredRepositoryImpl::GetRetired(int start, int max_items)
 {
 	pqxx::read_transaction rd(connection_);
 	auto req = boost::format("SELECT id, name, score, play_time_ms FROM retired_players ORDER BY score DESC, play_time_ms LIMIT %1% OFFSET %2%;") % max_items % start;
-	std::vector<model::PlayerRecordItem> res;
+	std::vector<PlayerRecordItem> res;
 	// Выполняем запрос и итерируемся по строкам ответа
 	 for (auto [id, name, score, play_time_ms] : rd.query<std::string, std::string, int, int>(req.str()))
 	 {
-		 model::PlayerRecordItem retired{id, name, score, play_time_ms};
-		 res.push_back(retired);
+		 PlayerRecordItem retired{name, score, play_time_ms};
+		 res.emplace_back(retired);
 	 }
 
 	return res;
 }
-*/
+
 Database::Database(pqxx::connection connection)
     : connection_{std::move(connection)} {
 }

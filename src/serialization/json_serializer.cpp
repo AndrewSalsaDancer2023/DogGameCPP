@@ -1,12 +1,12 @@
 #include "json_serializer.h"
 #include <utility>
 #include <boost/json.hpp>
-// #include "game_session.h"
+#include "../utility/utility_functions.h"
 
 namespace json = boost::json;
 using namespace std::literals;
 
-const int MILLISECONDS_IN_SECOND = 1000;
+// const int MILLISECONDS_IN_SECOND = 1000;
 namespace json_serializer {
 
    std::string MakeErrorResponce(const std::string& codeMessage, const std::string& errorMessage)
@@ -162,16 +162,16 @@ namespace json_serializer {
     std::string MakeRecordsResponce(std::shared_ptr<Game> game, int start, int max_items)
     {
     	json::array map_ar;
-/*      for( const auto& record: game.GetRecords(start, max_items))
+      for( const auto& record: game->get_retired_players(start, max_items))
         {
             json::object map_obj;
 
             map_obj[ "name" ] = record.name;
     	    map_obj[ "score" ] = record.score;
-    	    map_obj[ "playTime" ] = (double)record.playTime / MILLISECONDS_IN_SECOND;
+    	    map_obj[ "playTime" ] = convert_int_to_double(record.play_time);
     	    map_ar.emplace_back(map_obj);
         }
-*/
+
         return json::serialize(map_ar);
     }
 

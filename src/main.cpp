@@ -4,10 +4,12 @@
 #include "network/request_handler.h"
 #include "core/MapParser.h"
 #include "core/Game.h"
+#include "core/DataTypes.h"
+#include "serialization/game_state_serialization.h"
+#include "db/postgres.h"
 // #include "event_logger.h"
-// #include "model_serialization.h"
+
 #include <cstdlib>
-// #include "postgres.h"
 #include <memory>
 #include "utility/utility_functions.h"
 using namespace std::literals;
@@ -54,14 +56,14 @@ int main(int argc, const char* argv[]) {
         auto game = create_game(stor, tokenizer/*, repository: ConcreteRepository, exception_coro: Coroutine*/);
         // if(args->tick_period > 0)
         // 	game.SetTickPeriod(args->tick_period);
-/*
+
         if(!args->save_file.empty() && (args->save_period > 0))
         {
-        	game.AddSavePath(args->save_file);
-        	game.SetSavePeriod(args->save_period);
-
-        	DeserializeSessions(game);
-        }*/
+        	// game.AddSavePath(args->save_file);
+        	// game.SetSavePeriod(args->save_period);
+            game->set_save_path(args->save_file);
+            game->restore_sessions(deserialize_game_state(game->get_save_path()));
+        }
         // game.SetSpawnInRandomPoint(args->spawn_random_points);
         // Game game(stor, tokenizer, args->spawn_random_points);
         // game.set_tick_period(args->tick_period);
@@ -76,6 +78,7 @@ int main(int argc, const char* argv[]) {
         		if (!ec) {
         			ioc.stop();
         			// SerializeSessions(game);
+                    game->serialize_state();
         			event_logger::LogServerEnd("server exited", EXIT_SUCCESS);
         		}
         });

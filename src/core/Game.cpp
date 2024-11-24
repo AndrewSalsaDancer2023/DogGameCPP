@@ -6,6 +6,8 @@
 #include "GameSession.h"
 #include "Utils.h"
 #include "Exceptions.h"
+#include "../utility/utility_functions.h"
+#include "../serialization/game_state_serialization.h"
 
 Game::Game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::ITokenGenerator> generator, 
            int tick_period, bool spawn_in_random_points/*, ConcreteRepository repository, exception_coro: Coroutine*/)
@@ -152,8 +154,8 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
                 GenerateLoot(period);
                 MoveDogs(period);
 
-                // data_saver_.start(self.serialize_sessions, period)
-                // data_saver_.start(self.handle_retired_players)
+                // serialize_sessions(period);
+                // handle_retired_players();
         }
         catch(...)
         {
@@ -166,12 +168,21 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
 /*        if not self.save_period:
             return []
 
-        session_list = []
-        for session in self.sessions_:
-            session_list.append(session.get_session_state())
+*/
+        GameState game_state;
+        for(const auto& session: sessions_)
+            game_state.emplace_back(session->get_session_state());
 
-        return session_list*/
-        return GameState();
+        return game_state;
+    }
+
+    void Game::serialize_state()
+    {
+        const auto& state = create_game_state();
+        if(state.empty())
+            return;
+
+        serialize_game_state(state, save_path);
     }
 
     void Game::serialize_sessions(int interval)
@@ -179,6 +190,9 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
         time_without_saving_ += interval;
         if(time_without_saving_ < save_period)
             return;
+
+        serialize_state();
+
     /*
         state = self.create_game_state()
         if not state:
@@ -201,6 +215,31 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
 
         for(const auto& item : player_state.dog.bag)
             dog->append_gathered_loot(LootInfo{item.id_, item.type_, 0, 0});
+    }
+
+    void Game::restore_sessions(const GameState& state)
+    {
+        sessions_.clear();
+        for(const auto& session: state)
+        {
+            auto [loot_period, loot_probability] = get_loot_parameters();
+            auto new_session = std::make_shared<GameSession>(session.map_id, loot_period, loot_probability);
+            new_session->set_loot_list(session.loots_info_state);
+
+            for(const auto& player_state : session.players)
+            {
+                auto map_to_add = find_map(session.map_id);
+                auto player = new_session->add_player(player_state.name, map_to_add, player_state.token,
+                                            spawn_in_random_points_, storage_->get_default_bag_capacity());
+                player->set_id(player_state.id_);
+                //player.set_name(player_state.name);
+                // player->set_token(player_state.token);
+                auto dog = player->GetDog();
+                init_dog(dog, player_state);
+            }
+
+            sessions_.emplace_back(new_session);
+        }
     }
 /*
     def restore_sessions(self, session_content):
@@ -243,7 +282,8 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
         for(const auto& player : players)
         {
             auto dog = player->GetDog();
-            retired.push_back(PlayerRecordItem{player->GetName(), dog->get_score(), dog->get_play_time()});
+            SaveRetiredPlayer(PlayerRecordItem{player->GetName(), dog->get_score(), dog->get_play_time()});
+            // retired.push_back(PlayerRecordItem{player->GetName(), dog->get_score(), dog->get_play_time()});
         }
         // repository_.save_retired(convert_to_db_representation(retired));
     }
@@ -286,16 +326,7 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
 
     std::vector<PlayerRecordItem> Game::get_retired_players(int start, int max_items)
     {
-        try
-        {
-            // res = await convert_future(self.data_saver_.start(self.repository_.get_retired, start, max_items))
-            // return convert_from_db_representation(res);
-        }
-        catch(...)
-        {
-            // print(ex.args)
-        }
-        return {};
+       return GetRetiredPlayers(start, max_items);
     }
 
 std::shared_ptr<Game> create_game(std::shared_ptr<MapStorage> storage, std::shared_ptr<utils::PlayerToken> tokenizer,

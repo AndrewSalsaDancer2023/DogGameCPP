@@ -46,7 +46,7 @@ const LootList& Game::get_loots_for_auth_info(const std::string& auth_token)
 		});
 
 	    if(itFind == sessions_.end())
-		    throw PlayerAbsentException();
+            return {};
 
 	    return (*itFind)->GetPlayerWithAuthToken(auth_token);
     }

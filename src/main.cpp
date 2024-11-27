@@ -43,8 +43,8 @@ int main(int argc, const char* argv[]) {
 
     try {
         std::optional<Args> args = Args{};
-    	//  postgres::Database db{pqxx::connection{GetConfigFromEnv().db_url}};
-    	//  db.CreateTable();
+    	postgres::Database db{pqxx::connection{LEAVE_GAME_DB_URL_ENV_VALUE}};
+    	db.CreateTable();
         // 1. Загружаем карту из файла и построить модель игры
         // model::Game game = json_loader::LoadGame(args->config_file, args->www_root);
         std::filesystem::path pth(args->config_file);
@@ -77,7 +77,6 @@ int main(int argc, const char* argv[]) {
         signals.async_wait([&ioc, game](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
         		if (!ec) {
         			ioc.stop();
-        			// SerializeSessions(game);
                     game->serialize_state();
         			event_logger::LogServerEnd("server exited", EXIT_SUCCESS);
         		}
